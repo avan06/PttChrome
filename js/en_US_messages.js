@@ -111,6 +111,9 @@ locale.en_US = {
   "options_enableEasyReading": {
     "message": "Enable easy reading article view."
   },
+  "options_enableArticleFloorNumber": {
+    "message": "Show push floor numbers (accurate across pages in easy reading mode)"
+  },
   "options_endTurnsOnLiveUpdate": {
     "message": "Press END turns on pushthread live update."
   },

@@ -109,7 +109,18 @@ function TermView(rowCount) {
 
   var lastRowDiv = document.createElement('div');
   lastRowDiv.setAttribute('id', 'easyReadingLastRow');
-  this.lastRowDivContent = '<span align="left"><span class="q0 b7">                                                       </span><span class="q1 b7">(y)</span><span class="q0 b7">回應</span><span class="q1 b7">(X%)</span><span class="q0 b7">推文</span><span class="q1 b7">(←)</span><span class="q0 b7">離開 </span> </span>';
+  this.lastRowDivContent =
+    '<span align="left">' +
+    '<span class="q0 b7">                                             </span>' +
+    '<span class="q1 b7">(y)</span>' +
+    '<span class="q0 b7">回應</span>' +
+    '<span class="q1 b7">(X)</span>' +
+    '<span class="q0 b7">推文 </span>' +
+    '<span class="q1 b7">(←)</span>' +
+    '<span class="q0 b7">離開</span>' +
+    '<span class="q1 b7">(h)</span>' +
+    '<span class="q0 b7">說明 </span>' +
+    '</span>';
   lastRowDiv.innerHTML = this.lastRowDivContent;
   this.lastRowDiv = lastRowDiv;
   this.BBSWin.appendChild(lastRowDiv);

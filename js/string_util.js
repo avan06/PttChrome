@@ -131,23 +131,22 @@ String.prototype.parseReqNotMetText = function() {
 };
 
 String.prototype.parseStatusRow = function() {
-  var str = this;
-  var regex = new RegExp(/  瀏覽 第 (\d{1,3})(?:\/(\d{1,3}))? 頁 *\( *(\d{1,3})%\)  目前顯示: 第 0*(\d+)~0*(\d+) 行 *(?:\(y\)回應)?(?:\(X\/?%\)推文)?(?:\(h\)說明)? *\(←\/?q?\)離開 /g);
-  var result = regex.exec(str);
-  if (!result)
-    return null;
+  var regex =
+      /瀏覽\s+第\s+(\d{1,3})(?:\/(\d{1,3}))?\s+頁\s*\(\s*(\d{1,3})%\)\s+目前顯示:\s*第\s*0*(\d+)~0*(\d+)\s+行/;
 
-  if (result.length == 6) {
-    return {
-      pageIndex:     parseInt(result[1]),
-      pageTotal:     parseInt(result[2]),
-      pagePercent:   parseInt(result[3]),
-      rowIndexStart: parseInt(result[4]),
-      rowIndexEnd:   parseInt(result[5])
-    };
+  var result = regex.exec(this);
+
+  if (!result) {
+    return null;
   }
 
-  return null;
+  return {
+    pageIndex:     parseInt(result[1], 10),
+    pageTotal:     result[2] ? parseInt(result[2], 10) : null,
+    pagePercent:   parseInt(result[3], 10),
+    rowIndexStart: parseInt(result[4], 10),
+    rowIndexEnd:   parseInt(result[5], 10)
+  };
 };
 
 String.prototype.parseListRow = function() {

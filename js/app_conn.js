@@ -16,24 +16,63 @@ lib.AppConnection = function(spec) {
   };
 
   this.isConnected = false;
-  this.appId = 'hhnlfapopmaimdlldbknjdgekpgffmbo';
+  var params = new URLSearchParams(window.location.search);
+
+  this.officialAppId = 'hhnlfapopmaimdlldbknjdgekpgffmbo';
+  this.testAppId = 'hmhhegkjioifokmmlhkblnebfoekbalf';
+
+  // An explicit appId query parameter takes priority. If omitted, probe the
+  // independent test build first, then fall back to the official build.
+  this.appId = params.get('appId') || null;
   this.appPort = null;
 };
 
 lib.AppConnection.prototype.checkChromeApp = function(callback) {
-  var appId = this.appId;
   var self = this;
-  if (!chrome.runtime) {
+
+  if (typeof chrome == 'undefined' || !chrome.runtime) {
+    console.error('chrome.runtime is unavailable');
     self.showJumbo();
     return;
   }
-  chrome.runtime.sendMessage(appId, { action: 'status' }, function(response) {
-    if (!response) {
+
+  var candidates;
+  if (self.appId) {
+    candidates = [self.appId];
+  } else {
+    candidates = [self.testAppId, self.officialAppId];
+  }
+
+  var tryNext = function(index) {
+    if (index >= candidates.length) {
+      console.error('No compatible PttChrome App was found');
       self.showJumbo();
-    } else {
-      callback();
+      return;
     }
-  });
+
+    var candidateId = candidates[index];
+    chrome.runtime.sendMessage(candidateId, { action: 'status' }, function(response) {
+      var error = chrome.runtime.lastError;
+      if (error) {
+        console.warn('Unable to connect to PttChrome App ' + candidateId + ': ' + error.message);
+        tryNext(index + 1);
+        return;
+      }
+
+      if (!response || response.result !== true) {
+        console.warn('PttChrome App returned an invalid status response: ' + candidateId);
+        tryNext(index + 1);
+        return;
+      }
+
+      // connect() must use the same ID that successfully answered status.
+      self.appId = candidateId;
+      console.log('Using PttChrome App: ' + candidateId);
+      callback();
+    });
+  };
+
+  tryNext(0);
 };
 
 lib.AppConnection.prototype.showJumbo = function() {

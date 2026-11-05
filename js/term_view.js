@@ -566,6 +566,13 @@ TermView.prototype = {
         this.buf.prevPageState = this.buf.pageState;
       }
 
+      // Easy-reading mode updates floors inside populateEasyReadingPage().
+      // Normal mode renders directly in redraw(), so update floors here after
+      // both full-row and partial-row DOM updates have completed.
+      if (!this.useEasyReadingMode && this.bbscore.articleFloor) {
+        this.bbscore.articleFloor.update(this);
+      }
+
       if (this.enablePicPreview) {
         // hide preview if any update
         this.picPreviewShouldShown = false;
@@ -1298,6 +1305,9 @@ TermView.prototype = {
         this.mainContainer.innerHTML += this.htmlRowStrArray.slice(beginIndex, -1).join('');
         this.findPttWebUrlAndInitFbSharing();
         this.embedPicAndVideo();
+        if (this.bbscore.articleFloor) {
+          this.bbscore.articleFloor.update(this);
+        }
         // deep clone lines for selection (getRowText and get ansi color)
         this.buf.pageLines = this.buf.pageLines.concat(JSON.parse(JSON.stringify(this.buf.lines.slice(beginIndex, -1))));
       }
@@ -1322,6 +1332,9 @@ TermView.prototype = {
         this.hideFbSharing = false;
         this.findPttWebUrlAndInitFbSharing();
         this.embedPicAndVideo();
+        if (this.bbscore.articleFloor) {
+          this.bbscore.articleFloor.update(this);
+        }
         // deep clone lines for selection (getRowText and get ansi color)
         this.buf.pageLines = this.buf.pageLines.concat(JSON.parse(JSON.stringify(this.buf.lines.slice(0, -1))));
       } else {

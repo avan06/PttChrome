@@ -782,3 +782,17 @@ span {
 .modal-backdrop {
   z-index: 1 !important;
 }
+
+
+/* Native article push floor number */
+.pttArticleFloor {
+  float: left;
+  width: 1.5em;
+  height: 0;
+  margin-left: 2.2%;
+  font-size: 0.4em !important;
+  font-weight: bold;
+  line-height: 1 !important;
+  text-align: right;
+  pointer-events: none;
+}

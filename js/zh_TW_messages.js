@@ -111,6 +111,9 @@
   "options_enableEasyReading": {
     "message": "啟用文章好讀模式"
   },
+  "options_enableArticleFloorNumber": {
+    "message": "顯示文章推文樓層（好讀模式可精確跨頁計數）"
+  },
   "options_endTurnsOnLiveUpdate": {
     "message": "END 啟用推文即時更新 (如 Alt + r)"
   },

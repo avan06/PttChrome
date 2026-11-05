@@ -1,4 +1,4 @@
-﻿var PREFS_CATEGORIES = ['mouseBrowsing', 'appearance'];
+var PREFS_CATEGORIES = ['mouseBrowsing', 'appearance'];
 var PREFS_NAV = ['general', 'autologin', 'blacklist', 'extensions', 'about'];
 var DEFAULT_PREFS = {
 
@@ -9,6 +9,7 @@ var DEFAULT_PREFS = {
   enablePicPreview      : true,
   enableNotifications   : true,
   enableEasyReading     : false,
+  enableArticleFloorNumber: true,
   endTurnsOnLiveUpdate  : false,
   copyOnSelect          : false,
   antiIdleTime          : 0,

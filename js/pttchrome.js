@@ -58,6 +58,7 @@ pttchrome.App = function(onInitializedCallback, options) {
   this.view.setBuf(this.buf);
   this.view.setConn(this.conn);
   this.view.setCore(this);
+  this.articleFloor = new pttchrome.ArticleFloor(this);
   this.parser = new lib.AnsiParser(this.buf);
 
   //new pref - start
@@ -1121,6 +1122,9 @@ pttchrome.App.prototype.onPrefChange = function(pref, name) {
       break;
     case 'enableNotifications':
       this.view.enableNotifications = pref.get(name);
+      break;
+    case 'enableArticleFloorNumber':
+      this.view.redraw(true);
       break;
     case 'enableEasyReading':
       /*if (this.connectedUrl.site == 'ptt.cc') {

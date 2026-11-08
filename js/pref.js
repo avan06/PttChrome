@@ -303,6 +303,8 @@ PttChromePref.prototype = {
         self.readValueFromUi();
       }
       self.saveAndDoneWithIt();
+      var enableEasyReading = self.get('enableEasyReading') && self.app.connectedUrl.site == 'ptt.cc';
+      self.app.view.useEasyReadingMode = enableEasyReading;
       self.app.switchToEasyReadingMode(self.app.view.useEasyReadingMode);
     });
   },

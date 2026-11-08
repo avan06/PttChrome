@@ -414,9 +414,10 @@ pttchrome.App.prototype.switchToEasyReadingMode = function(doSwitch) {
   } else {
     this.view.mainContainer.style.paddingBottom = '';
     this.view.lastRowIndex = 22;
-    this.view.lastRowDiv.style.display = '';
-    this.view.replyRowDiv.style.display = '';
-    this.view.fbSharingDiv.style.display = '';
+    // Hide EasyReading-only elements when returning to BBS mode.
+    this.view.lastRowDiv.style.display = 'none';
+    this.view.replyRowDiv.style.display = 'none';
+    this.view.fbSharingDiv.style.display = 'none';
     this.view.hideFbSharing = true;
     // clear the deep cloned copy of lines
     this.buf.pageLines = [];

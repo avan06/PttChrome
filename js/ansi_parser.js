@@ -10,6 +10,8 @@ lib.AnsiParser.STATE_TEXT = 0;
 lib.AnsiParser.STATE_ESC = 1;
 lib.AnsiParser.STATE_CSI = 2;
 lib.AnsiParser.STATE_C1 = 3;
+lib.AnsiParser.STATE_OSC = 4;
+lib.AnsiParser.STATE_OSC_ESC = 5;
 
 lib.AnsiParser.prototype.feed = function(data) {
   var term = this.termbuf;
@@ -315,10 +317,32 @@ lib.AnsiParser.prototype.feed = function(data) {
       this.esc = '';
       this.state = lib.AnsiParser.STATE_TEXT;
       break;
+    case lib.AnsiParser.STATE_OSC:
+      // OSC strings, including OSC 8 hyperlinks, are terminal metadata.
+      // Consume them until BEL or ST instead of writing their payload to
+      // the 80-column screen buffer. The state is kept across feed calls.
+      if (ch == '\x07') {
+        this.state = lib.AnsiParser.STATE_TEXT;
+      } else if (ch == '\x1b') {
+        this.state = lib.AnsiParser.STATE_OSC_ESC;
+      }
+      break;
+    case lib.AnsiParser.STATE_OSC_ESC:
+      if (ch == '\\' || ch == '\x07') {
+        // String Terminator (ESC \) or BEL.
+        this.state = lib.AnsiParser.STATE_TEXT;
+      } else if (ch != '\x1b') {
+        // An ESC not followed by '\' belongs to the ignored OSC data.
+        this.state = lib.AnsiParser.STATE_OSC;
+      }
+      break;
     case lib.AnsiParser.STATE_ESC:
       if (ch == '[')
         this.state=lib.AnsiParser.STATE_CSI;
-      else {
+      else if (ch == ']') {
+        this.esc = '';
+        this.state=lib.AnsiParser.STATE_OSC;
+      } else {
         this.state=lib.AnsiParser.STATE_C1;
         --i;
       }

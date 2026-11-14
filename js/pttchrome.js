@@ -139,7 +139,10 @@ pttchrome.App = function(onInitializedCallback, options) {
 
   window.addEventListener('mousewheel', function(e) {
     self.mouse_scroll(e);
-  }, true);
+  }, {
+    capture: true,
+    passive: false
+  });
 
   window.addEventListener('contextmenu', function(e) {
     self.context_menu(e);

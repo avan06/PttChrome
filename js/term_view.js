@@ -573,6 +573,10 @@ TermView.prototype = {
         this.bbscore.articleFloor.update(this);
       }
 
+      if (this.bbscore.aidManager) {
+        this.bbscore.aidManager.linkify(this.mainContainer);
+      }
+
       if (this.enablePicPreview) {
         // hide preview if any update
         this.picPreviewShouldShown = false;

@@ -34,6 +34,7 @@ module.exports = function(grunt) {
         },
         src: [
           'js/pttchrome.js', 
+          'js/aid.js',
           'js/touch_controller.js',
           'js/google_drive.js',
           'js/app_conn.js', 
@@ -63,6 +64,7 @@ module.exports = function(grunt) {
     jshint: {
       files: [
           'js/pttchrome.js', 
+          'js/aid.js',
           'js/touch_controller.js',
           'js/google_drive.js',
           'js/app_conn.js', 

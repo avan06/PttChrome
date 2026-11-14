@@ -111,6 +111,9 @@ locale.en_US = {
   "options_enableEasyReading": {
     "message": "Enable easy reading article view."
   },
+  "options_autoGotoAIDArticle": {
+    "message": "Automatically open AID links inside PttChrome instead of www.ptt.cc."
+  },
   "options_enableArticleFloorNumber": {
     "message": "Show push floor numbers (accurate across pages in easy reading mode)"
   },

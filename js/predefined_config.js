@@ -10,6 +10,7 @@ var DEFAULT_PREFS = {
   enableNotifications   : true,
   enableEasyReading     : false,
   enableArticleFloorNumber: true,
+  autoGotoAIDArticle    : true,
   endTurnsOnLiveUpdate  : false,
   copyOnSelect          : false,
   antiIdleTime          : 0,

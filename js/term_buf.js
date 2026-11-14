@@ -186,6 +186,7 @@ function TermBuf(cols, rows) {
   this.changed = false;
   this.posChanged = false;
   this.pageState = 0;
+  this.currentBoard = null;
   this.forceFullWidth = false;
   this.enableDeleteDupLogin = false;
   this.deleteDupLogin = false;
@@ -740,6 +741,7 @@ TermBuf.prototype = {
       this.updateCharAttr();
 
       this.setPageState();
+      this.updateCurrentBoard();
       if (this.useMouseBrowsing) {
         // clear highlight and reset cursor on page change
         // without the redraw being called here
@@ -1383,20 +1385,49 @@ TermBuf.prototype = {
     this.view.conn.send('om\r\x1b[D\x1b[C');
   },
 
+
+  updateCurrentBoard: function() {
+    var firstRowText = this.getRowText(0, 0, this.cols);
+    var match = /看板《([0-9A-Za-z_-]+)》/.exec(firstRowText);
+    if (!match && this.pageState === 3) {
+      match = /看板\s+([0-9A-Za-z_-]+)/.exec(firstRowText);
+    }
+    if (match) {
+      this.currentBoard = match[1];
+    }
+  },
+
   sendNavigateToBoardCmd: function() {
     var conn = this.view.conn;
     var board = this.view.bbscore.navigateTo.board;
     // navigate to board
-    conn.send('s'+board+'\r');
+    if (/^[0-9A-Za-z_-]+$/.test(board || '')) {
+      conn.send('s'+board+'\r');
+    }
   },
 
   sendNavigateToArticleCmd: function() {
     var conn = this.view.conn;
     var aid = this.view.bbscore.navigateTo.aid;
     // navigate to article
-    if (aid) {
+    if (/^[0-9A-Za-z_-]{8}$/.test(aid || '')) {
       conn.send('#'+aid+'\r\r\x1b[1~');
     }
+  },
+
+  resetEasyReadingForNavigation: function() {
+    // AID navigation starts a different article. Do not carry page-down,
+    // overlap suppression, or accumulated easy-reading rows into its first
+    // screen, otherwise the header page can be discarded as an old update.
+    this.startedEasyReading = false;
+    this.easyReadingShowReplyText = false;
+    this.easyReadingShowPushInitText = false;
+    this.easyReadingReachedPageEnd = false;
+    this.sendCommandAfterUpdate = '';
+    this.ignoreOneUpdate = false;
+    this.prevPageState = 0;
+    this.pageLines = [];
+    this.pageWrappedLines = [];
   },
 
   cancelPageDownAndResetPrevPageState: function() {

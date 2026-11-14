@@ -1,4 +1,4 @@
-﻿// Main Program
+// Main Program
 
 var pttchrome = {};
 
@@ -88,6 +88,7 @@ pttchrome.App = function(onInitializedCallback, options) {
   this.modalShown = false;
 
   this.inputHelper = new InputHelper(this);
+  this.aidManager = new pttchrome.AIDManager(this);
 
   this.navigateTo = { board: getQueryVariable('board'), aid: getQueryVariable('aid') };
   this.navigationDone = false;
@@ -177,9 +178,7 @@ pttchrome.App = function(onInitializedCallback, options) {
     if (self.isFromApp && msg.action === 'newwindow' && self.appConn && self.appConn.isConnected) {
       self.appConn.appPort.postMessage({ action: 'newWindow', data: msg.data });
     } else if (msg.action == 'navigate') {
-      self.navigationDone = false;
-      self.navigateTo = msg.data;
-      self.conn.send('\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D');
+      self.navigateToAid(msg.data.board, msg.data.aid);
     }
   });
 
@@ -1127,6 +1126,9 @@ pttchrome.App.prototype.onPrefChange = function(pref, name) {
     case 'enableArticleFloorNumber':
       this.view.redraw(true);
       break;
+    case 'autoGotoAIDArticle':
+      this.autoGotoAIDArticle = pref.get(name);
+      break;
     case 'enableEasyReading':
       /*if (this.connectedUrl.site == 'ptt.cc') {
         this.view.useEasyReadingMode = this.pref.get('enableEasyReading');
@@ -1180,6 +1182,30 @@ pttchrome.App.prototype.onPrefChange = function(pref, name) {
     // eats all errors
     return;
   }
+};
+
+
+pttchrome.App.prototype.navigateToAid = function(board, aid) {
+  board = String(board || '').trim();
+  aid = String(aid || '').trim().replace(/^#/, '');
+  if (!/^[0-9A-Za-z_-]+$/.test(board) || !/^[0-9A-Za-z_-]{8}$/.test(aid)) {
+    return false;
+  }
+
+  this.buf.resetEasyReadingForNavigation();
+  this.navigateTo = {board: board, aid: aid};
+  this.navigationDone = false;
+
+  // When already in the destination board list, use PTT's native #AID
+  // command immediately. Otherwise return to a menu state and let
+  // TermBuf.notify() drive board -> article navigation by pageState.
+  if (this.buf.pageState === 2 && this.buf.currentBoard === board) {
+    this.navigationDone = true;
+    this.buf.sendNavigateToArticleCmd();
+  } else {
+    this.conn.send('\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D');
+  }
+  return true;
 };
 
 pttchrome.App.prototype.checkClass = function(cn) {

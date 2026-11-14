@@ -287,6 +287,9 @@ pttchrome.App.prototype.onData = function(data) {
 
 pttchrome.App.prototype.onClose = function() {
   dumpLog(DUMP_TYPE_LOG, "pttchrome onClose");
+  if (this.conn instanceof SecureShellConnection) {
+    this.conn.resetSession();
+  }
   if (this.timerEverySec) {
     this.timerEverySec.cancel();
   }
@@ -438,29 +441,28 @@ pttchrome.App.prototype.setupConnectionAlert = function() {
 
   var self = this;
   $('#connectionAlertReconnect').click(function(e) {
-    self.connect(self.connectedUrl.site);
+    var target = self.connectedUrl.site;
+    if (self.connectedUrl.port) {
+      target += ':' + self.connectedUrl.port;
+    }
     $('#connectionAlert').hide();
+    self.connect(target);
   });
-  $('#connectionAlertPortOption2').click(function(e) {
-    var port = 443;
-    var site = 'ptt.cc';
-    if (self.connectedUrl.site) {
-      site = self.connectedUrl.site;
-    }
 
-    if (self.isFromApp) {
-      /*
-       * fixing a problem url won't open tab in packaged app mode:
-       * - this used to happen only when user click on "try 443 port" after a
-       * disconnection.
-       * - it seems to related with the window.location.replace method
-       */
-
-      self.connect(site + ':' + port);
-    } else {
-      window.location.replace('?site=' + site + ':'+ port);
-    }
-  });
+  // Port 443 on ptt.cc is HTTPS, not SSH. Sending an SSH handshake there
+  // produces an HTTP 400 response, so this legacy fallback must not be offered
+  // while SecureShellConnection is active.
+  if (this.conn instanceof SecureShellConnection) {
+    $('#connectionAlertPortOption1').hide();
+    $('#connectionAlertPortOption2').hide();
+  } else {
+    $('#connectionAlertPortOption1').show();
+    $('#connectionAlertPortOption2').show();
+    $('#connectionAlertPortOption2').click(function(e) {
+      var site = self.connectedUrl.site || 'ptt.cc';
+      self.connect(site + ':443');
+    });
+  }
 };
 
 pttchrome.App.prototype.setupOtherSiteInput = function() {

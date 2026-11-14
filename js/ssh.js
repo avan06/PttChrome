@@ -30,20 +30,33 @@ function SecureShellConnection(app) {
   //AutoLogin - end
 }
 
-SecureShellConnection.prototype.disconnect = function() {
-  this.isConnected = false;
-  this.client.close(true);
-  if (this.app.appConn && this.app.appConn.isConnected) {
-    this.app.appConn.disconnect();
-    this.app.onClose();
+SecureShellConnection.prototype.resetSession = function() {
+  if (this.client) {
+    try {
+      this.client.legitClose = true;
+      this.client.close(true);
+    } catch (e) {
+    }
   }
+  this.transport = null;
+  this.client = null;
   this.shell = null;
+  this.isConnected = false;
+};
+
+SecureShellConnection.prototype.disconnect = function() {
+  this.resetSession();
+  if (this.app.appConn && this.app.appConn.isConnected) {
+    this.app.appConn.disconnectTcp();
+  }
 };
 
 SecureShellConnection.prototype.connect = function(host, port) {
   if (host) {
     this.host = host;
   }
+
+  this.resetSession();
 
   // Check AutoLogin Stage
   //this.app.loadLoginData(); //load login data
@@ -59,6 +72,9 @@ SecureShellConnection.prototype.connect = function(host, port) {
 
   var self = this;
   var shell_success = function(shell) {
+    // invoke_shell() is asynchronous; ignore a late callback from an old session.
+    if (!shell) return;
+
     self.shell = shell;
   };
 

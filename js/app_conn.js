@@ -170,16 +170,25 @@ lib.AppConnection.prototype.sendTcp = function(str) {
   }
 };
 
-lib.AppConnection.prototype.disconnect = function() {
-  if (!this.isConnected) {
+lib.AppConnection.prototype.disconnectTcp = function() {
+  if (!this.isConnected || !this.appPort) {
     return;
   }
+  try {
+    this.appPort.postMessage({ action: 'disconnect' });
+  } catch (e) {
+  }
+};
+
+lib.AppConnection.prototype.disconnect = function() {
+  this.disconnectTcp();
   if (this.appPort) {
     try {
-      this.appPort.postMessage({ action: 'disconnect' });
+      this.appPort.disconnect();
     } catch (e) {
     }
   }
+  this.appPort = null;
   this.isConnected = false;
 };
 

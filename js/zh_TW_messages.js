@@ -114,6 +114,9 @@ locale.zh_TW = {
   "options_autoGotoAIDArticle": {
     "message": "是否自動跳至 AID 文章，而非開啟 www.ptt.cc 網站"
   },
+  "options_mergeContinuousPushAuthor": {
+    "message": "合併相同作者連續留言的 ID 名稱"
+  },
   "options_enableArticleFloorNumber": {
     "message": "顯示文章推文樓層（好讀模式可精確跨頁計數）"
   },

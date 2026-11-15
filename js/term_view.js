@@ -511,17 +511,23 @@ TermView.prototype = {
         var shouldFade = false;
         var userid = '';
 
-        // check blacklist for user and fade row
-        if (this.bbscore.pref.enableBlacklist) {
+        // Parse article push authors for native article features even when
+        // blacklist support is disabled. Thread-list authors are only needed
+        // by the blacklist feature.
+        if (this.buf.pageState == 3 &&
+            (this.bbscore.pref.enableBlacklist ||
+             this.bbscore.pref.get('mergeContinuousPushAuthor') ||
+             this.bbscore.pref.get('enableArticleFloorNumber'))) {
           var rowText = this.buf.getRowText(row, 0, this.buf.cols);
-          if (this.buf.pageState == 3) {
-            userid = rowText.parsePushthreadForUserId();
-          } else if (this.buf.pageState == 2) {
-            userid = rowText.parseThreadForUserId();
-          }
-          if (userid in this.bbscore.pref.blacklistedUserIds) {
-            shouldFade = true;
-          }
+          userid = rowText.parsePushthreadForUserId();
+        } else if (this.buf.pageState == 2 &&
+            this.bbscore.pref.enableBlacklist) {
+          var rowText = this.buf.getRowText(row, 0, this.buf.cols);
+          userid = rowText.parseThreadForUserId();
+        }
+        if (this.bbscore.pref.enableBlacklist &&
+            userid in this.bbscore.pref.blacklistedUserIds) {
+          shouldFade = true;
         }
 
         if (this.doHighlightOnCurRow) 
@@ -571,6 +577,9 @@ TermView.prototype = {
       // both full-row and partial-row DOM updates have completed.
       if (!this.useEasyReadingMode && this.bbscore.articleFloor) {
         this.bbscore.articleFloor.update(this);
+      }
+      if (!this.useEasyReadingMode && this.bbscore.articleAuthorMerge) {
+        this.bbscore.articleAuthorMerge.update(this);
       }
 
       if (this.bbscore.aidManager) {
@@ -1312,6 +1321,9 @@ TermView.prototype = {
         if (this.bbscore.articleFloor) {
           this.bbscore.articleFloor.update(this);
         }
+        if (this.bbscore.articleAuthorMerge) {
+          this.bbscore.articleAuthorMerge.update(this);
+        }
         // deep clone lines for selection (getRowText and get ansi color)
         this.buf.pageLines = this.buf.pageLines.concat(JSON.parse(JSON.stringify(this.buf.lines.slice(beginIndex, -1))));
       }
@@ -1338,6 +1350,9 @@ TermView.prototype = {
         this.embedPicAndVideo();
         if (this.bbscore.articleFloor) {
           this.bbscore.articleFloor.update(this);
+        }
+        if (this.bbscore.articleAuthorMerge) {
+          this.bbscore.articleAuthorMerge.update(this);
         }
         // deep clone lines for selection (getRowText and get ansi color)
         this.buf.pageLines = this.buf.pageLines.concat(JSON.parse(JSON.stringify(this.buf.lines.slice(0, -1))));

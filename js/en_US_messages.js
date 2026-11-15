@@ -114,6 +114,9 @@ locale.en_US = {
   "options_autoGotoAIDArticle": {
     "message": "Automatically open AID links inside PttChrome instead of www.ptt.cc."
   },
+  "options_mergeContinuousPushAuthor": {
+    "message": "Merge the author ID on consecutive pushes by the same user"
+  },
   "options_enableArticleFloorNumber": {
     "message": "Show push floor numbers (accurate across pages in easy reading mode)"
   },

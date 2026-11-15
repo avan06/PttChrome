@@ -59,6 +59,7 @@ pttchrome.App = function(onInitializedCallback, options) {
   this.view.setConn(this.conn);
   this.view.setCore(this);
   this.articleFloor = new pttchrome.ArticleFloor(this);
+  this.articleAuthorMerge = new pttchrome.ArticleAuthorMerge(this);
   this.parser = new lib.AnsiParser(this.buf);
 
   //new pref - start
@@ -1129,6 +1130,9 @@ pttchrome.App.prototype.onPrefChange = function(pref, name) {
       this.view.enableNotifications = pref.get(name);
       break;
     case 'enableArticleFloorNumber':
+      this.view.redraw(true);
+      break;
+    case 'mergeContinuousPushAuthor':
       this.view.redraw(true);
       break;
     case 'autoGotoAIDArticle':

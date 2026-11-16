@@ -1278,8 +1278,7 @@ TermView.prototype = {
   populateEasyReadingPage: function() {
     if (this.buf.pageState == 3 && this.buf.prevPageState == 3) {
       this.mainContainer.style.paddingBottom = '1em';
-      var lastRowText = this.buf.getRowText(23, 0, this.buf.cols);
-      var result = lastRowText.parseStatusRow();
+      var result = this.buf.getEasyReadingStatus();
       if (result) {
         // row index start with 4 or below will cause duplicated first row of next page
         // 2015-07-04: better way is to view the row 3 and row 4 as one wrapped line
@@ -1332,8 +1331,9 @@ TermView.prototype = {
       this.mainContainer.style.paddingBottom = '';
       this.actualRowIndex = 0;
       this.buf.pageWrappedLines = [];
+      this.buf.lastNormalStatusRowEnd = null;
       if (this.buf.pageState == 3) {
-        var lastRowText = this.buf.getRowText(23, 0, this.buf.cols);
+        this.buf.getEasyReadingStatus();
         for (var i = 0; i < this.htmlRowStrArray.length-1; ++i) {
           if (i == 4 || i > 0 && this.buf.isTextWrappedRow(i-1)) { // row with i == 4 and the i == 3 is the wrapped line
             this.buf.pageWrappedLines[this.actualRowIndex] += 1;

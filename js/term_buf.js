@@ -206,6 +206,8 @@ function TermBuf(cols, rows) {
 
   this.pageLines = [];
   this.pageWrappedLines = [];
+  // Last known normal article row end. Interactive status rows omit the range.
+  this.lastNormalStatusRowEnd = null;
 
   this.outputhtmls = new Array(rows);
   this.lineChangeds = new Array(rows);
@@ -1415,6 +1417,27 @@ TermBuf.prototype = {
     }
   },
 
+  getEasyReadingStatus: function() {
+    var result = this.getRowText(23, 0, this.cols).parseStatusRow();
+    if (!result) {
+      return null;
+    }
+
+    if (!result.interactive) {
+      this.lastNormalStatusRowEnd = result.rowIndexEnd;
+      return result;
+    }
+
+    // PTT article pages use a 23-line sliding window: the current first line
+    // is the previous page's last line, so each page advances 22 rows.
+    result.rowIndexStart = this.lastNormalStatusRowEnd !== null ?
+        this.lastNormalStatusRowEnd : Math.max(1, (result.pageIndex - 1) * 22);
+    result.rowIndexEnd = result.rowIndexStart + 22;
+    result.estimatedRowRange = true;
+    this.lastNormalStatusRowEnd = result.rowIndexEnd;
+    return result;
+  },
+
   resetEasyReadingForNavigation: function() {
     // AID navigation starts a different article. Do not carry page-down,
     // overlap suppression, or accumulated easy-reading rows into its first
@@ -1428,6 +1451,7 @@ TermBuf.prototype = {
     this.prevPageState = 0;
     this.pageLines = [];
     this.pageWrappedLines = [];
+    this.lastNormalStatusRowEnd = null;
   },
 
   cancelPageDownAndResetPrevPageState: function() {

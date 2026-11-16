@@ -131,10 +131,27 @@ String.prototype.parseReqNotMetText = function() {
 };
 
 String.prototype.parseStatusRow = function() {
-  var regex =
+  var normalRegex =
       /瀏覽\s+第\s+(\d{1,3})(?:\/(\d{1,3}))?\s+頁\s*\(\s*(\d{1,3})%\)\s+目前顯示:\s*第\s*0*(\d+)~0*(\d+)\s+行/;
+  var result = normalRegex.exec(this);
 
-  var result = regex.exec(this);
+  if (result) {
+    return {
+      pageIndex:     parseInt(result[1], 10),
+      pageTotal:     result[2] ? parseInt(result[2], 10) : null,
+      pagePercent:   parseInt(result[3], 10),
+      rowIndexStart: parseInt(result[4], 10),
+      rowIndexEnd:   parseInt(result[5], 10),
+      interactive:   false
+    };
+  }
+
+  // Personalized/interactive articles replace "目前顯示: 第...行" with
+  // this warning. They are still article-reading screens and must remain
+  // pageState 3, otherwise Easy Reading discards all accumulated pages.
+  var interactiveRegex =
+      /瀏覽\s+第\s+(\d{1,3})(?:\/(\d{1,3}))?\s+頁\s*\(\s*(\d{1,3})%\)\s+.*此頁內容會依閱讀者不同/;
+  result = interactiveRegex.exec(this);
 
   if (!result) {
     return null;
@@ -144,8 +161,9 @@ String.prototype.parseStatusRow = function() {
     pageIndex:     parseInt(result[1], 10),
     pageTotal:     result[2] ? parseInt(result[2], 10) : null,
     pagePercent:   parseInt(result[3], 10),
-    rowIndexStart: parseInt(result[4], 10),
-    rowIndexEnd:   parseInt(result[5], 10)
+    rowIndexStart: null,
+    rowIndexEnd:   null,
+    interactive:   true
   };
 };
 
